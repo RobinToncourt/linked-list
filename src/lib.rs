@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 mod linked_list;
+mod linked_list_iterator;
 
 trait List<T> {
     fn insert(&mut self, index: usize, element: T);
@@ -9,5 +10,5 @@ trait List<T> {
     fn push(&mut self, value: T);
     fn remove(&mut self, index: usize) -> T;
     fn get(&self, index: usize) -> Option<&T>;
-    fn into_vec(self) -> Vec<T>;
+    fn split_off(&mut self, at: usize) -> Self;
 }
