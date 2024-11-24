@@ -1,8 +1,8 @@
 use std::ops::Index;
 use std::ops::IndexMut;
 
-use crate::List;
 use crate::linked_list_iterator::LinkedListIterator;
+use crate::List;
 
 const OUT_OF_BOUND: &str = "Index out of bound!";
 
@@ -83,6 +83,10 @@ impl<T> List<T> for LinkedList<T> {
         }
     }
 
+    fn is_empty(&self) -> bool {
+        self.value.is_none()
+    }
+
     fn pop(&mut self) -> Option<T> {
         if self.next.is_some() {
             if self.next.as_ref().unwrap().is_last() {
@@ -157,6 +161,43 @@ impl<T> List<T> for LinkedList<T> {
             panic!("{OUT_OF_BOUND}")
         }
     }
+
+    fn is_sorted(&self) -> bool
+    where
+        T: PartialOrd,
+    {
+        if self.value.is_none() || self.next.is_none() {
+            true
+        } else {
+            let ref_val = self.value.as_ref().unwrap();
+            let ref_next = self.next.as_ref().unwrap();
+
+            ref_val <= ref_next.value.as_ref().unwrap() && ref_next.is_sorted()
+        }
+    }
+
+    fn sort(&mut self)
+    where
+        T: Ord,
+    {
+        if self.value.is_some() && self.next.is_some() {
+            let mut_val = self.value.as_mut().unwrap();
+            let mut_next = self.next.as_mut().unwrap();
+
+            mut_next.sort();
+            let mut_next_val = mut_next.value.as_mut().unwrap();
+            if mut_next_val < mut_val {
+                std::mem::swap(mut_val, mut_next_val);
+            }
+            mut_next.sort();
+        }
+    }
+}
+
+impl<T> Default for LinkedList<T> {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl<T> Index<usize> for LinkedList<T> {
@@ -203,6 +244,33 @@ mod test_linked_list {
         list.push(2);
         list.push(3);
         list
+    }
+
+    fn create_and_init_unsorted_linked_list() -> LinkedList<u8> {
+        let mut list = LinkedList::new();
+        list.push(1);
+        list.push(3);
+        list.push(0);
+        list.push(2);
+        list
+    }
+
+    #[test]
+    fn test_len() {
+        let list = create_and_init_linked_list();
+        let empty = LinkedList::<u8>::new();
+
+        assert_eq!(list.len(), 4);
+        assert_eq!(empty.len(), 0);
+    }
+
+    #[test]
+    fn test_is_empty() {
+        let list = create_and_init_linked_list();
+        let empty = LinkedList::<u8>::new();
+
+        assert_eq!(list.is_empty(), false);
+        assert_eq!(empty.is_empty(), true);
     }
 
     #[test]
@@ -362,6 +430,32 @@ mod test_linked_list {
     }
 
     #[test]
+    fn test_is_sorted() {
+        let empty = LinkedList::<u8>::new();
+        let sorted = create_and_init_linked_list();
+        let unsorted = create_and_init_unsorted_linked_list();
+
+        assert_eq!(empty.is_sorted(), true);
+        assert_eq!(sorted.is_sorted(), true);
+        assert_eq!(unsorted.is_sorted(), false);
+    }
+
+    #[test]
+    fn test_sort() {
+        let mut empty = LinkedList::<u8>::new();
+        let mut sorted = create_and_init_linked_list();
+        let mut unsorted = create_and_init_unsorted_linked_list();
+
+        empty.sort();
+        sorted.sort();
+        unsorted.sort();
+
+        assert_eq!(empty.into_iter().collect::<Vec<u8>>(), Vec::new());
+        assert_eq!(sorted.into_iter().collect::<Vec<u8>>(), vec![0, 1, 2, 3]);
+        assert_eq!(unsorted.into_iter().collect::<Vec<u8>>(), vec![0, 1, 2, 3]);
+    }
+
+    #[test]
     #[should_panic(expected = "Index out of bound!")]
     fn test_index() {
         let list = create_and_init_linked_list();
@@ -381,4 +475,8 @@ mod test_linked_list {
 
         assert_eq!(list[0], 4);
     }
+}
+
+mod bench_linked_list {
+
 }

@@ -20,8 +20,8 @@ impl<T> Iterator for LinkedListIterator<T> {
 
 #[cfg(test)]
 mod test_linked_list_iterator {
-    use crate::List;
     use super::*;
+    use crate::List;
 
     fn create_and_init_linked_list() -> LinkedList<u8> {
         let mut list = LinkedList::new();
@@ -34,13 +34,21 @@ mod test_linked_list_iterator {
 
     #[test]
     fn test_next() {
-        let mut list = create_and_init_linked_list();
+        let list = create_and_init_linked_list();
+        let mut into_iter = list.into_iter();
 
-        assert_eq!(list.pop_first(), Some(0));
-        assert_eq!(list.pop_first(), Some(1));
-        assert_eq!(list.pop_first(), Some(2));
-        assert_eq!(list.pop_first(), Some(3));
-        assert_eq!(list.pop_first(), None);
-        assert_eq!(list.pop_first(), None);
+        assert_eq!(into_iter.next(), Some(0));
+        assert_eq!(into_iter.next(), Some(1));
+        assert_eq!(into_iter.next(), Some(2));
+        assert_eq!(into_iter.next(), Some(3));
+        assert_eq!(into_iter.next(), None);
+        assert_eq!(into_iter.next(), None);
+    }
+
+    #[test]
+    fn test_collect_on_empty() {
+        let list = LinkedList::<u8>::new();
+
+        assert_eq!(list.into_iter().collect::<Vec<u8>>(), Vec::<u8>::new())
     }
 }
