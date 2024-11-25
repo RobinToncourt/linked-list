@@ -48,6 +48,28 @@ impl<T> LinkedList<T> {
 
         result
     }
+
+    fn get_lowest_ref_mut_value(&mut self) -> Option<&mut T>
+    where
+        T: PartialOrd,
+    {
+        if self.value.is_none() {
+            None
+        } else if self.next.is_none()  {
+            self.value.as_mut()
+        } else {
+            let mut_value = self.value.as_mut().unwrap();
+            let mut_next = self.next.as_mut().unwrap();
+
+            let lowest = mut_next.get_lowest_ref_mut_value().unwrap();
+
+            if mut_value < lowest {
+                Some(mut_value)
+            } else {
+                Some(lowest)
+            }
+        }
+    }
 }
 
 impl<T> List<T> for LinkedList<T> {
@@ -181,15 +203,20 @@ impl<T> List<T> for LinkedList<T> {
         T: Ord,
     {
         if self.value.is_some() && self.next.is_some() {
-            let mut_val = self.value.as_mut().unwrap();
-            let mut_next = self.next.as_mut().unwrap();
+            if self.value.is_some() && self.next.is_some() {
+                let mut_value = self.value.as_mut().unwrap();
+                let mut_next = self.next.as_mut().unwrap();
+                let lowest = mut_next.get_lowest_ref_mut_value();
 
-            mut_next.sort();
-            let mut_next_val = mut_next.value.as_mut().unwrap();
-            if mut_next_val < mut_val {
-                std::mem::swap(mut_val, mut_next_val);
+                if lowest.is_some() {
+                    let lowest = lowest.unwrap();
+                    if lowest < mut_value {
+                        std::mem::swap(lowest, mut_value);
+                    }
+                }
+
+                self.next.as_mut().unwrap().sort();
             }
-            mut_next.sort();
         }
     }
 }
@@ -427,6 +454,15 @@ mod test_linked_list {
 
         assert_eq!(left.into_iter().collect::<Vec<u8>>(), expected_left);
         assert_eq!(right.into_iter().collect::<Vec<u8>>(), expected_right);
+    }
+
+    #[test]
+    fn test_get_lowest_ref_mut_value() {
+        let mut list = create_and_init_unsorted_linked_list();
+        let mut empty = LinkedList::<u8>::new();
+
+        assert_eq!(list.get_lowest_ref_mut_value(), Some(&mut 0));
+        assert_eq!(empty.get_lowest_ref_mut_value(), None);
     }
 
     #[test]
