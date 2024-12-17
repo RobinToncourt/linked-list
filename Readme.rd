@@ -1,1 +1,1 @@
-Moved in collections.
+Linked list implemtation.
