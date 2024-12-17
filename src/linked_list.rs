@@ -55,7 +55,7 @@ impl<T> LinkedList<T> {
     {
         if self.value.is_none() {
             None
-        } else if self.next.is_none()  {
+        } else if self.next.is_none() {
             self.value.as_mut()
         } else {
             let mut_value = self.value.as_mut().unwrap();
@@ -202,21 +202,23 @@ impl<T> List<T> for LinkedList<T> {
     where
         T: Ord,
     {
-        if self.value.is_some() && self.next.is_some() {
-            if self.value.is_some() && self.next.is_some() {
-                let mut_value = self.value.as_mut().unwrap();
-                let mut_next = self.next.as_mut().unwrap();
-                let lowest = mut_next.get_lowest_ref_mut_value();
+        if self.value.is_some()
+            && self.next.is_some()
+            && self.value.is_some()
+            && self.next.is_some()
+        {
+            let mut_value = self.value.as_mut().unwrap();
+            let mut_next = self.next.as_mut().unwrap();
+            let lowest = mut_next.get_lowest_ref_mut_value();
 
-                if lowest.is_some() {
-                    let lowest = lowest.unwrap();
-                    if lowest < mut_value {
-                        std::mem::swap(lowest, mut_value);
-                    }
+            if lowest.is_some() {
+                let lowest = lowest.unwrap();
+                if lowest < mut_value {
+                    std::mem::swap(lowest, mut_value);
                 }
-
-                self.next.as_mut().unwrap().sort();
             }
+
+            self.next.as_mut().unwrap().sort();
         }
     }
 }
@@ -513,6 +515,4 @@ mod test_linked_list {
     }
 }
 
-mod bench_linked_list {
-
-}
+mod bench_linked_list {}
