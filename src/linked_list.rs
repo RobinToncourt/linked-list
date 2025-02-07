@@ -13,6 +13,7 @@ pub struct LinkedList<T> {
 }
 
 impl<T> LinkedList<T> {
+    #[must_use]
     pub fn new() -> Self {
         Self {
             value: None,
@@ -23,8 +24,7 @@ impl<T> LinkedList<T> {
     pub fn pop_first(&mut self) -> Option<T> {
         let result = self.value.take();
 
-        if self.next.is_some() {
-            let mut next = self.next.take().unwrap();
+        if let Some(mut next) = self.next.take() {
             self.value = next.value.take();
             self.next = next.next.take();
         }
@@ -411,6 +411,14 @@ mod test_linked_list {
     }
 
     #[test]
+    #[should_panic(expected = "Index out of bound!")]
+    fn test_insert_out_of_bound() {
+        let mut list = create_and_init_linked_list();
+
+        list.insert(5, 5);
+    }
+
+    #[test]
     fn test_split_off_begin() {
         let mut left = create_and_init_linked_list();
         let right = left.split_off(0);
@@ -456,6 +464,13 @@ mod test_linked_list {
 
         assert_eq!(left.into_iter().collect::<Vec<u8>>(), expected_left);
         assert_eq!(right.into_iter().collect::<Vec<u8>>(), expected_right);
+    }
+
+    #[test]
+    #[should_panic(expected = "Index out of bound!")]
+    fn test_split_off_out_of_bound() {
+        let mut left = create_and_init_linked_list();
+        let _ = left.split_off(5);
     }
 
     #[test]
